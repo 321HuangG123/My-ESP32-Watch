@@ -22,12 +22,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "mpu6050/inv_mpu.h"
-#include "mpu6050/inv_mpu_dmp_motion_driver.h"
-#include "mpu6050/mpu6050.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
+#include "inv_mpu.h"
+#include "inv_mpu_dmp_motion_driver.h"
+#include "mpu6050.h"
+#include "delay.h"
+#include "usart.h"
 
 
 #define MPU6050							//定义我们使用的传感器为MPU6050
@@ -53,7 +52,7 @@
 
 #define i2c_write   MPU_Write_Len
 #define i2c_read    MPU_Read_Len
-#define delay_ms    vTaskDelay
+#define delay_ms    delay_ms
 #define get_ms      mget_ms
 //static inline int reg_int_cb(struct int_param_s *int_param)
 //{
@@ -768,7 +767,7 @@ int mpu_init(void)
     data[0] = BIT_RESET;
     if (i2c_write(st.hw->addr, st.reg->pwr_mgmt_1, 1, data))
         return -1;
-    delay_ms(pdMS_TO_TICKS(100));
+    delay_ms(100);
 
     /* Wake up chip. */
     data[0] = 0x00;
@@ -1115,7 +1114,7 @@ int mpu_reset_fifo(void)
         data = BIT_FIFO_RST | BIT_DMP_RST;
         if (i2c_write(st.hw->addr, st.reg->user_ctrl, 1, &data))
             return -1;
-        delay_ms(pdMS_TO_TICKS(50));
+        delay_ms(50);
         data = BIT_DMP_EN | BIT_FIFO_EN;
         if (st.chip_cfg.sensors & INV_XYZ_COMPASS)
             data |= BIT_AUX_IF_EN;
@@ -1140,7 +1139,7 @@ int mpu_reset_fifo(void)
             data = BIT_FIFO_EN | BIT_AUX_IF_EN;
         if (i2c_write(st.hw->addr, st.reg->user_ctrl, 1, &data))
             return -1;
-        delay_ms(pdMS_TO_TICKS(50));
+        delay_ms(50);
         if (st.chip_cfg.int_enable)
             data = BIT_DATA_RDY_EN;
         else
@@ -1664,7 +1663,7 @@ int mpu_set_sensors(unsigned char sensors)
 
     st.chip_cfg.sensors = sensors;
     st.chip_cfg.lp_accel_mode = 0;
-    delay_ms(pdMS_TO_TICKS(50));
+    delay_ms(50);
     return 0;
 }
 
@@ -1834,7 +1833,7 @@ int mpu_set_bypass(unsigned char bypass_on)
         tmp &= ~BIT_AUX_IF_EN;
         if (i2c_write(st.hw->addr, st.reg->user_ctrl, 1, &tmp))
             return -1;
-        delay_ms(pdMS_TO_TICKS(3));
+        delay_ms(3);
         tmp = BIT_BYPASS_EN;
         if (st.chip_cfg.active_low_int)
             tmp |= BIT_ACTL;
@@ -1852,7 +1851,7 @@ int mpu_set_bypass(unsigned char bypass_on)
             tmp &= ~BIT_AUX_IF_EN;
         if (i2c_write(st.hw->addr, st.reg->user_ctrl, 1, &tmp))
             return -1;
-        delay_ms(pdMS_TO_TICKS(3));
+        delay_ms(3);
         if (st.chip_cfg.active_low_int)
             tmp = BIT_ACTL;
         else
@@ -1999,7 +1998,7 @@ static int compass_self_test(void)
         goto AKM_restore;
 
     do {
-        delay_ms(pdMS_TO_TICKS(10));
+        delay_ms(10);
         if (i2c_read(st.chip_cfg.compass_addr, AKM_REG_ST1, 1, tmp))
             goto AKM_restore;
         if (tmp[0] & AKM_DATA_READY)
@@ -2043,7 +2042,7 @@ static int get_st_biases(long *gyro, long *accel, unsigned char hw_test)
     data[1] = 0;
     if (i2c_write(st.hw->addr, st.reg->pwr_mgmt_1, 2, data))
         return -1;
-    delay_ms(pdMS_TO_TICKS(200));
+    delay_ms(200);
     data[0] = 0;
     if (i2c_write(st.hw->addr, st.reg->int_enable, 1, data))
         return -1;
@@ -2058,7 +2057,7 @@ static int get_st_biases(long *gyro, long *accel, unsigned char hw_test)
     data[0] = BIT_FIFO_RST | BIT_DMP_RST;
     if (i2c_write(st.hw->addr, st.reg->user_ctrl, 1, data))
         return -1;
-    delay_ms(pdMS_TO_TICKS(15));
+    delay_ms(15);
     data[0] = st.test->reg_lpf;
     if (i2c_write(st.hw->addr, st.reg->lpf, 1, data))
         return -1;
@@ -2079,7 +2078,7 @@ static int get_st_biases(long *gyro, long *accel, unsigned char hw_test)
     if (i2c_write(st.hw->addr, st.reg->accel_cfg, 1, data))
         return -1;
     if (hw_test)
-        delay_ms(pdMS_TO_TICKS(200));
+        delay_ms(200);
 
     /* Fill FIFO for test.wait_ms milliseconds. */
     data[0] = BIT_FIFO_EN;
@@ -2089,7 +2088,7 @@ static int get_st_biases(long *gyro, long *accel, unsigned char hw_test)
     data[0] = INV_XYZ_GYRO | INV_XYZ_ACCEL;
     if (i2c_write(st.hw->addr, st.reg->fifo_en, 1, data))
         return -1;
-    delay_ms(pdMS_TO_TICKS(test.wait_ms));
+    delay_ms(test.wait_ms);
     data[0] = 0;
     if (i2c_write(st.hw->addr, st.reg->fifo_en, 1, data))
         return -1;
@@ -2454,12 +2453,12 @@ int setup_compass(void)
     data[0] = AKM_POWER_DOWN;
     if (i2c_write(st.chip_cfg.compass_addr, AKM_REG_CNTL, 1, data))
         return -1;
-    delay_ms(pdMS_TO_TICKS(1));
+    delay_ms(1);
 
     data[0] = AKM_FUSE_ROM_ACCESS;
     if (i2c_write(st.chip_cfg.compass_addr, AKM_REG_CNTL, 1, data))
         return -1;
-    delay_ms(pdMS_TO_TICKS(1));
+    delay_ms(1);
 
     /* Get sensitivity adjustment data from fuse ROM. */
     if (i2c_read(st.chip_cfg.compass_addr, AKM_REG_ASAX, 3, data))
@@ -2471,7 +2470,7 @@ int setup_compass(void)
     data[0] = AKM_POWER_DOWN;
     if (i2c_write(st.chip_cfg.compass_addr, AKM_REG_CNTL, 1, data))
         return -1;
-    delay_ms(pdMS_TO_TICKS(1));
+    delay_ms(1);
 
     mpu_set_bypass(0);
 
@@ -2734,7 +2733,7 @@ int mpu_lp_motion_interrupt(unsigned short thresh, unsigned char time,
             goto lp_int_restore;
 
         /* Force hardware to "lock" current accel sample. */
-        delay_ms(pdMS_TO_TICKS(5));
+        delay_ms(5);
         data[0] = (st.chip_cfg.accel_fsr << 3) | BITS_HPF;
         if (i2c_write(st.hw->addr, st.reg->accel_cfg, 1, data))
             goto lp_int_restore;
@@ -2878,7 +2877,7 @@ static signed char gyro_orientation[9] = { 1, 0, 0,
 //MPU6050自测试
 //返回值:0,正常
 //    其他,失败
-uint8_t run_self_test(void)
+u8 run_self_test(void)
 {
 	int result;
 	//char test_packet[4] = {0};
@@ -2954,10 +2953,10 @@ void mget_ms(unsigned long *time)
 //mpu6050,dmp初始化
 //返回值:0,正常
 //    其他,失败
-uint8_t mpu_dmp_init(void)
+u8 mpu_dmp_init(void)
 {
-	uint8_t res=0;
-
+	u8 res=0;
+	MPU_Bus_Init();
 	if(mpu_init()==0)//初始化MPU6050
 	{	
 		res = mpu_lp_accel_mode(20);
@@ -2989,7 +2988,7 @@ uint8_t mpu_dmp_init(void)
 //yaw:航向角   精度:0.1°   范围:-180.0°<---> +180.0°
 //返回值:0,正常
 //    其他,失败
-uint8_t mpu_dmp_get_data(float *pitch,float *roll,float *yaw)
+u8 mpu_dmp_get_data(float *pitch,float *roll,float *yaw)
 {
 	float q0=1.0f,q1=0.0f,q2=0.0f,q3=0.0f;
 	unsigned long sensor_timestamp;

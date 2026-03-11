@@ -1,9 +1,17 @@
 #ifndef __MPU6050_H
 #define __MPU6050_H
 
-#include "esp_err.h"
+#include "sys.h"
+#include "math.h"
 
-#define MPU6050_ADDR 0x68
+#define I2C_MASTER_NUM              I2C_NUM_0    // I2C 端口号
+#define I2C_MASTER_SDA_IO           13           // SDA 引脚号 (对应你原代码的 GPIO_PIN_13)
+#define I2C_MASTER_SCL_IO           14           // SCL 引脚号 (对应你原代码的 GPIO_PIN_14)
+#define MPU_INT_GPIO                12           // MPU6050 中断引脚 
+#define I2C_MASTER_FREQ_HZ          400000       // I2C 频率 (400kHz)
+#define I2C_MASTER_TX_BUF_DISABLE   0            // I2C 不需要发送缓存
+#define I2C_MASTER_RX_BUF_DISABLE   0            // I2C 不需要接收缓存
+#define I2C_MASTER_TIMEOUT_MS       100          // I2C 操作超时时间
 
 #define MPU_SELF_TESTX_REG 0X0D   // 自检寄存器X
 #define MPU_SELF_TESTY_REG 0X0E   // 自检寄存器Y
@@ -73,122 +81,44 @@
 #define MPU_FIFO_CNTH_REG 0X72    // FIFO计数寄存器高八位
 #define MPU_FIFO_CNTL_REG 0X73    // FIFO计数寄存器低八位
 #define MPU_FIFO_RW_REG 0X74      // FIFO读写寄存器
-#define MPU_WHO_AM_I_REG 0X75     // 器件ID寄存器
+#define MPU_DEVICE_ID_REG 0X75    // 器件ID寄存器
 
-/**
- * MPU6050 初始化工作
- * @param   无
- * @return  无
- */
-void MPU6050_init(void);
+// 如果AD0脚(9脚)接地,IIC地址为0X68(不包含最低位).
+// 如果接V3.3,则IIC地址为0X69(不包含最低位).
+#define MPU_ADDR 0X68
+#define MPU_ID 0x68
 
-/**
- * 从 MPU6050 读取一个数据
- * @param   RegAddress  寄存器地址
- * @return  寄存器中的数据
- */
-uint8_t MPU6050_ReadReg(uint8_t RegAddress);
+////因为开发板接GND,所以转为读写地址后,为0XD1和0XD0(如果接GND,则为0XD3和0XD2)
+// #define MPU_READ    0XD1
+// #define MPU_WRITE   0XD0
 
-/**
- * 向MPU6050中写入数据
- * @param   RegAddress      寄存器的地址
- * @param   Data            向寄存器填充的值
- * @return  无
- */
-void MPU6050_WriteReg(uint8_t RegAddress, uint8_t Data);
+void MPU_INT_Pin_Init(void);
+void MPU_Motion_Init(void);
+void MPU_Bus_Init(void);
+uint8_t MPU_Init(void); // 初始化MPU6050
 
-/**
- * MPU6050获取ID号
- * @param   无
- * @return  MPU6050 ID号
- */
-uint8_t MPU6050_GetID(void);
+uint8_t MPU_Write_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf); // IIC连续写
+uint8_t MPU_Read_Len(uint8_t addr, uint8_t reg, uint8_t len, uint8_t *buf);  // IIC连续读
+uint8_t MPU_Write_Byte(uint8_t reg, uint8_t data);                 // IIC写一个字节
+uint8_t MPU_Read_Byte(uint8_t reg);                           // IIC读一个字节
 
-/**
- * 设置MPU6050陀螺仪传感器满量程范围
- * @param  fsr:0,+250dps;1,500dps;2,+1000dps;3,+2000dps
- * @return 0 if success
- */
 uint8_t MPU_Set_Gyro_Fsr(uint8_t fsr);
-
-/**
- * 设置MPU6050的数字低通滤波器
- * @param  fsr:低通滤波器频率(Hz)
- * @return 0 if success
- */
 uint8_t MPU_Set_Accel_Fsr(uint8_t fsr);
+uint8_t MPU_Set_LPF(uint16_t lpf);
+uint8_t MPU_Set_Rate(uint16_t rate);
+uint8_t MPU_Set_Fifo(uint8_t sens);
 
-/**
- * 设置MPU6050的低通滤波器
- * @param  lpf: Hz
- * @return 无
- */
-uint8_t MPU6050_Set_LPF(uint16_t lpf);
+// uint8_t MPU_Read_Multi_Byte(uint8_t addr, uint8_t length, uint8_t buff[]);
+// uint8_t MPU_Write_Multi_Byte(uint8_t addr, uint8_t length, uint8_t buff[]);
 
-/**
- * 设置采样率
- * @param   rate    4~1000Hz
- * @return  无
- */
-uint8_t MPU6050_Set_Rate(uint16_t rate);
+void MPU_Sleep(void);
+void MPU_Wakeup(void);
+uint8_t MPU_Read_Status(void);
 
-/**
- * 获取MPU6050温度值
- * @param  NULL
- * @return 温度 (short)
- */
 short MPU_Get_Temperature(void);
-
-uint8_t MPU6050_Set_Fifo(uint16_t sens);
-
-/**
- * 获取陀螺仪原始值
- * @param   Gyro_   X、Y、Z 轴的原始值
- * @return  无
- */
-void MPU6050_GetGyroXData(int16_t *GyroX, int16_t *GyroY, int16_t *GyroZ);
-
-/**
- * 获取加速度原始值
- * @param   Acc_    X、Y、Z 轴的原始值
- * @return  无
- */
-void MPU6050_GetAccxData(int16_t *AccX, int16_t *AccY, int16_t *AccZ);
-
-/**
- * MPU6050 进入睡眠模式
- * @param   无
- * @return  无
- */
-void MPU_Sleep();
-
-/**
- * MPU6050  唤醒
- * @param   无
- * @return  无
- */
-void MPU_Wakeup();
-
-/**
- * MPU6050 读取状态位
- * @param   无
- * @return  读取到的中断状态
- */
-uint8_t MPU_Read_Status();
-
-/**
- * 利用静态加速度计数据来估算设备的姿态（倾斜角度）
- * @param  roll (float)  绕 X 轴旋转的角度（设备左右倾斜）
- * @param  pitch(float)  绕 Y 轴旋转的角度（设备前后倾斜）
- * @return NULL
- */
+uint8_t MPU_Get_Gyroscope(short *gx, short *gy, short *gz);
+uint8_t MPU_Get_Accelerometer(short *ax, short *ay, short *az);
 void MPU_Get_Angles(float *roll, float *pitch);
-
-/**
- * MPU6050 是否处于水平状态 
- * @param  NULL
- * @return 处于水平 ? 1 : 0
- */
 uint8_t MPU_isHorizontal(void);
 
 #endif

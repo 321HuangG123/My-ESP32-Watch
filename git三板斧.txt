@@ -1,0 +1,6 @@
+1、git init 创建.git文件夹
+2、git remote add origin https://github.com/yourname/my-project.git  关联仓库
+3、git checkout main  切换分支
+4、git add . 或者 git add xxx 指定文件/文件夹
+5、git commit -m "xxxxxx" 提交到本地仓库 写注释
+6、git push origin main 推送到远程分支
