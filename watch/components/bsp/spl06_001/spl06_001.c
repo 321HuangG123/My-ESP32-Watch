@@ -1,10 +1,50 @@
 #include "spl06_001.h"
-#include "i2c_u.h"
 #include "driver/i2c.h"
 #include "math.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+// 定义结构体
+typedef struct {
+    i2c_port_t port;      // I2C 端口号 (I2C_NUM_0 或 I2C_NUM_1)
+    uint32_t scl_io;      // SCL 引脚编号
+    uint32_t sda_io;      // SDA 引脚编号
+} esp32_i2c_bus_t;
+
+// 写入一个字节
+uint8_t IIC_Write_One_Byte(esp32_i2c_bus_t *bus, uint8_t daddr, uint8_t reg, uint8_t data) {
+    uint8_t write_buf[2] = {reg, data};
+    esp_err_t err = i2c_master_write_to_device(bus->port, daddr, write_buf, 2, pdMS_TO_TICKS(100));
+    return (err == ESP_OK) ? 0 : 1;
+}
+
+// 读取一个字节
+unsigned char IIC_Read_One_Byte(esp32_i2c_bus_t *bus, uint8_t daddr, uint8_t reg) {
+    uint8_t data = 0;
+    // 注意：daddr 传入 0x76 即可，无需左移
+    esp_err_t err = i2c_master_write_read_device(bus->port, daddr, &reg, 1, &data, 1, pdMS_TO_TICKS(100));
+    if (err != ESP_OK) {
+        return 0; // 或者返回一个错误码
+    }
+    return data;
+}
+
+// 初始化硬件 I2C
+void IICInit(esp32_i2c_bus_t *bus) {
+    i2c_config_t conf = {
+        .mode = I2C_MODE_MASTER,
+        .sda_io_num = bus->sda_io,
+        .scl_io_num = bus->scl_io,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .master.clk_speed = 400000, // 400KHz
+    };
+    i2c_param_config(bus->port, &conf);
+    i2c_driver_install(bus->port, conf.mode, 0, 0, 0);
+}
 
 // 1. 定义 ESP32 上的引脚连接
-esp32_i2c_bus_t SPL_bus = {
+esp32_i2c_bus_t bus = {
     .port = I2C_NUM_0,
     .sda_io = SPL06_001_SDA_PIN,  
     .scl_io = SPL06_001_SCL_PIN,  
@@ -16,13 +56,13 @@ int32_t c00,c10;
 uint8_t SPL_ReadOneReg(uint8_t addr)
 {
 	uint8_t dat;
-	dat = IIC_Read_One_Byte(&SPL_bus, SPL_CHIP_ADDRESS,addr);
+	dat = IIC_Read_One_Byte(&bus, SPL_CHIP_ADDRESS,addr);
 	return dat;
 }
 
 void SPL_WriteOneReg(uint8_t addr, uint8_t dat)
 {
-	IIC_Write_One_Byte(&SPL_bus, SPL_CHIP_ADDRESS,addr,dat);
+	IIC_Write_One_Byte(&bus, SPL_CHIP_ADDRESS,addr,dat);
 }
 
 int32_t Get_Traw()
@@ -36,7 +76,7 @@ int32_t Get_Traw()
 	Traw = Traw << 8 | buff[1];
 	Traw = Traw << 8 | buff[0];
 	if(Traw & (1<<23))
-	{Traw |= 0xFF000000;}//24 bit 2麓s complement numbers
+	{Traw |= 0xFF000000;}
 	return Traw;
 }
 
@@ -51,7 +91,7 @@ int32_t Get_Praw()
 	Praw = Praw << 8 | buff[1];
 	Praw = Praw << 8 | buff[0];
 	if(Praw & (1<<23))
-	{Praw |= 0xFF000000;}//24 bit 2麓s complement numbers
+	{Praw |= 0xFF000000;}
 	return Praw;
 }
 
@@ -168,7 +208,7 @@ int16_t get_c30()
 
 uint8_t SPL_init()
 {
-	IICInit(&SPL_bus);
+	IICInit(&bus);
 	
 	SPL_WriteOneReg(SPL_PRS_CFG, 0x01);		// Pressure 2x oversampling
 

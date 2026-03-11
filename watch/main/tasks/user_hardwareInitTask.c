@@ -74,7 +74,6 @@ void HardwareInitTask(void *argument)
       HWInterface.DHT11.ConnectionError = HWInterface.DHT11.Init(); // 初始化I2C以及往AHT21模块写入数据启动模块
     }
     
-    
     // 电子指南针模块初始化
     num = 3;
     while (num && HWInterface.Ecompass.ConnectionError)
@@ -84,7 +83,63 @@ void HardwareInitTask(void *argument)
     }
     if (!HWInterface.Ecompass.ConnectionError)
       HWInterface.Ecompass.Sleep();       // 进入睡眠模式，省电
+    
+    // 气压计初始化
+    num = 3;
+    while (num && HWInterface.Barometer.ConnectionError)
+    { 
+      num--;
+      HWInterface.Barometer.ConnectionError = HWInterface.Barometer.Init();
+    }
 
+    // MPU6050初始化
+    num = 3;
+    while (num && HWInterface.IMU.ConnectionError)
+    { 
+      num--;
+      HWInterface.IMU.ConnectionError = HWInterface.IMU.Init();
+    } // 其他模块有进入睡眠模式，但可能考虑到手表在低功耗模式下也得计算步数，作者就没有让该模块睡眠
+
+    // 心率模块初始化
+    num = 3;
+    while (num && HWInterface.HR_meter.ConnectionError)
+    { 
+      num--;
+      HWInterface.HR_meter.ConnectionError = HWInterface.HR_meter.Init();
+    }
+    if (!HWInterface.HR_meter.ConnectionError)
+      HWInterface.HR_meter.Sleep();   // 心率模块进入睡眠模式 
+
+    // EEPROM
+    EEPROM_Init();
+    if (!EEPROM_Check())  // 0 : 1 ? ok : err
+    { // 如果正常，则获取断电记忆与数据恢复，从E2PROM中获取保存过的数据
+      uint8_t recbuf[3];
+      SettingGet(recbuf, 0x10, 2);
+      if ((recbuf[0] != 0 && recbuf[0] != 1) || (recbuf[1] != 0 && recbuf[1] != 1))
+      {
+        HWInterface.IMU.wrist_is_enabled = 0;
+        ui_APPSy_EN = 0;
+      }
+      else
+      {
+        HWInterface.IMU.wrist_is_enabled = recbuf[0];
+        ui_APPSy_EN = recbuf[1];
+      }
+
+      RTC_DateTypeDef nowdate;
+      HAL_RTC_GetDate(&hrtc, &nowdate, RTC_FORMAT_BIN);
+
+      SettingGet(recbuf, 0x20, 3);
+      if (recbuf[0] == nowdate.Date)
+      {
+        uint16_t steps = 0;
+        steps = recbuf[1] & 0x00ff;
+        steps = steps << 8 | recbuf[2];
+        if (!HWInterface.IMU.ConnectionError)
+          dmp_set_pedometer_step_count((unsigned long)steps);
+      }
+    }
 
     // xTaskResumeAll();  // 恢复调度器
     vTaskDelete(NULL); // 杀死任务

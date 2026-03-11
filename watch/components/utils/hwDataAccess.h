@@ -55,7 +55,7 @@ extern "C" {
 #endif
 
 #if HW_USE_SPL06
-  #include "bmp280/bmp280.h"
+  #include "spl06_001/spl06_001.h"
 #endif
 
 #if HW_USE_LSM303

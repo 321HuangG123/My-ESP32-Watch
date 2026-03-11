@@ -1,10 +1,10 @@
 #include "hwDataAccess.h"
 #include "time.h"
 #include "adc_power.h"
-#include "bmp280/bmp280.h"
+#include "spl06_001/spl06_001.h"
 #include "dht11/dht11.h"
 #include "mpu6050/mpu6050.h"
-#include "mpu6050/inv_mpu.c"
+#include "mpu6050/inv_mpu.h"
 
 /***************************
  *  RTC Fucntions
@@ -376,7 +376,7 @@ void HW_DHT11_Get_Humi_Temp(float *humi, float *temp)
 uint8_t HW_Barometer_Init(void)
 {
 	#if HW_USE_SPL06
-		return BMP280_Init();
+		return SPL_init();
 	#endif
 
 	return -1;
