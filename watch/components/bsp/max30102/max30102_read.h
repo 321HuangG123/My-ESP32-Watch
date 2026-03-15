@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+extern int8_t ch_spo2_valid;      
+extern int8_t ch_hr_valid;      
+
 uint8_t Init_MAX30102(void);
 void ReadHeartRateSpO2(void);
 void bsp_InitI2C(void);

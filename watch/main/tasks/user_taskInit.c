@@ -1,13 +1,21 @@
 #include "user_taskInit.h"
 #include "user_runModeTask.h"
 #include "user_hardwareInitTask.h"
+#include "user_KeyTask.h"
+#include "user_ScrRenewTask.h"
+#include "user_SensUpdateTask.h"
+#include "user_ChargCheckTask.h"
+#include "user_MessageSendTask.h"
+#include "user_DataSaveTask.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "freertos/queue.h"
-
 #include "esp_log.h"
+#include "lvgl/src/core/lv_disp.h"
+#include "esp_task_wdt.h"
+
 
 #define TAG "USER_TASKINIT"
 
@@ -51,8 +59,6 @@ void User_Tasks_Init(void)
     DataSave_MessageQueue = xQueueCreate(2, 1);         // 保存 或 更新数据
 
     // 创建手表所需要的各个任务
-    // HardwareInitTaskHandle = osThreadNew(HardwareInitTask, NULL, &HardwareInitTask_attributes);
-
     /*
         #define configMAX_PRIORITIES  ( 25 )
         osPriorityIdle	        1	        0	        空闲任务级别
@@ -70,42 +76,125 @@ void User_Tasks_Init(void)
     // 不要用error check宏包裹这个函数，会报错，因为这个函数返回值不是esp_err_t类型
     // ESP_ERROR_CHECK(xTaskCreatePinnedToCore(HardwareInitTask, "HardwareInitTask", 4096 * 3, NULL, 17, &HardwareInitTaskHandle, tskNO_AFFINITY));   
     BaseType_t res;
-    res = xTaskCreatePinnedToCore(HardwareInitTask, "HardwareInitTask", 4096 * 3, NULL, 17, &HardwareInitTaskHandle, tskNO_AFFINITY);
+    // 创建硬件初始化任务，优先级设置为17，栈大小设置为4096*3字节
+    res = xTaskCreatePinnedToCore(HardwareInitTask, "HardwareInitTask", 128 * 10, NULL, 17, &HardwareInitTaskHandle, tskNO_AFFINITY);
     if (res != pdPASS)
     {
         ESP_LOGI(TAG, "HardwareInitTask Creation Failed.........");
     }
+
+    res = xTaskCreatePinnedToCore(LvHandlerTask, "LvHandlerTask", 128 * 24, NULL, 2, &LvHandlerTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "LvHandlerTask Creation Failed.........");
+    }
+
+    res = xTaskCreatePinnedToCore(WDOGFeedTask, "WDOGFeedTask", 128 * 1, NULL, 16, &WDOGFeedTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "WDOGFeedTask Creation Failed.........");
+    }
+
+    res = xTaskCreatePinnedToCore(IdleEnterTask, "IdleEnterTask", 128 * 1, NULL, 15, &IdleEnterTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "IdleEnterTask Creation Failed.........");
+    }
+
+    res = xTaskCreatePinnedToCore(StopEnterTask, "StopEnterTask", 128 * 16, NULL, 16, &StopEnterTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "StopEnterTask Creation Failed.........");
+    }
+
+    res = xTaskCreatePinnedToCore(KeyTask, "KeyTask", 128 * 1, NULL, 5, &KeyTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "KeyTask Creation Failed.........");
+    }
+
+    res = xTaskCreatePinnedToCore(ScrRenewTask, "ScrRenewTask", 128 * 10, NULL, 2, &ScrRenewTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "ScrRenewTask Creation Failed.........");
+    }
+
+    res = xTaskCreatePinnedToCore(SensorDataUpdateTask, "SensorDataUpdateTask", 128 * 5, NULL, 2, &SensorDataTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "SensorDataUpdateTask Creation Failed.........");
+    }
+
+    res = xTaskCreatePinnedToCore(HRDataUpdateTask, "HRDataUpdateTask", 128 * 5, NULL, 16, &HRDataTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "HRDataUpdateTask Creation Failed.........");
+    }
     
-    // LvHandlerTaskHandle = osThreadNew(LvHandlerTask, NULL, &LvHandlerTask_attributes);
-    // WDOGFeedTaskHandle = osThreadNew(WDOGFeedTask, NULL, &WDOGFeedTask_attributes);
-    // IdleEnterTaskHandle = osThreadNew(IdleEnterTask, NULL, &IdleEnterTask_attributes);
-    // StopEnterTaskHandle = osThreadNew(StopEnterTask, NULL, &StopEnterTask_attributes);
-    // KeyTaskHandle = osThreadNew(KeyTask, NULL, &KeyTask_attributes);
-    // ScrRenewTaskHandle = osThreadNew(ScrRenewTask, NULL, &ScrRenewTask_attributes);
-    // SensorDataTaskHandle = osThreadNew(SensorDataUpdateTask, NULL, &SensorDataTask_attributes);
-    // HRDataTaskHandle = osThreadNew(HRDataUpdateTask, NULL, &HRDataTask_attributes);
-    // ChargPageEnterTaskHandle = osThreadNew(ChargPageEnterTask, NULL, &ChargPageEnterTask_attributes);
-    // MessageSendTaskHandle = osThreadNew(MessageSendTask, NULL, &MessageSendTask_attributes);
-    // MPUCheckTaskHandle = osThreadNew(MPUCheckTask, NULL, &MPUCheckTask_attributes);
-    // DataSaveTaskHandle = osThreadNew(DataSaveTask, NULL, &DataSaveTask_attributes);
-
-
-
-    // LvHandlerTaskHandle;
-    // WDOGFeedTaskHandle;
-    // IdleEnterTaskHandle;
-    // StopEnterTaskHandle;
-    // KeyTaskHandle;
-    // ScrRenewTaskHandle;
-    // SensorDataTaskHandle;
-    // HRDataTaskHandle;
-    // ChargPageEnterTaskHandle;
-    // MessageSendTaskHandle;
-    // MPUCheckTaskHandle;
-    // DataSaveTaskHandle;
+    res = xTaskCreatePinnedToCore(ChargPageEnterTask, "ChargPageEnterTask", 128 * 10, NULL, 16, &ChargPageEnterTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "ChargPageEnterTask Creation Failed.........");
+    }
     
+    // res = xTaskCreatePinnedToCore(MessageSendTask, "MessageSendTask", 128 * 5, NULL, 2, &MessageSendTaskHandle, tskNO_AFFINITY);
+    // if (res != pdPASS)
+    // {
+    //     ESP_LOGI(TAG, "MessageSendTask Creation Failed.........");
+    // }
 
-    
-    // uint8_t HomeUpdataStr;
-    // osMessageQueuePut(HomeUpdata_MessageQueue, &HomeUpdataStr, 0, 1);   // 发送主页面更新消息
+    res = xTaskCreatePinnedToCore(MPUCheckTask, "MPUCheckTask", 128 * 3, NULL, 2, &MPUCheckTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "MPUCheckTask Creation Failed.........");
+    }
+
+    res = xTaskCreatePinnedToCore(DataSaveTask, "DataSaveTask", 128 * 5, NULL, 2, &DataSaveTaskHandle, tskNO_AFFINITY);
+    if (res != pdPASS)
+    {
+        ESP_LOGI(TAG, "DataSaveTask Creation Failed.........");
+    }
+
+    uint8_t HomeUpdataStr = 1;
+    xQueueSendToBack(HomeUpdata_MessageQueue, &HomeUpdataStr, 1);   // 发送主页面更新消息
+}
+
+/**
+ * @brief  LVGL Handler task, to run the lvgl
+ * @param  argument: Not used
+ * @retval None
+ */
+void LvHandlerTask(void *argument)
+{ //
+  uint8_t IdleBreakstr = 0;
+  while (1)
+  { // lv_disp_get_inactive_time(NULL) 获取自上次用户操作以来，已经过去了多少毫秒
+    if (lv_disp_get_inactive_time(NULL) < 1000)         // 1秒内有用户操作，发送解除空闲状态消息，参数值为0
+    {
+      // Idle time break, set to 0
+      xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 0); 
+    }
+    // 老版的叫 task_handler，新版的叫timer_handler，整个项目就只有这里调用了timer_handler
+    // 是lvgl的“心脏”，lvgl系统必须定时执行这个函数，才不会变成UI页面无法正常交互的“砖”
+    lv_task_handler();
+    vTaskDelay(pdMS_TO_TICKS(10));
+  }
+}
+
+
+/**
+ * @brief  Watch Dog Feed task
+ * @param  argument: Not used
+ * @retval None
+ */
+void WDOGFeedTask(void *argument)
+{
+  // 初始化Task Watchdog
+  esp_task_wdt_init(5);     // 5秒超时
+  esp_task_wdt_add(NULL);         // 监控当前任务
+  while (1)
+  {
+    esp_task_wdt_reset();       // 喂狗
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
 }

@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include "screen/st7789_driver.h"
-#include "utils/lv_port.h"
 #include "user_taskInit.h"
 
 #include "lvgl.h"

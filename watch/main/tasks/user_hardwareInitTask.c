@@ -4,8 +4,15 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "utils/adc_power.h"
-#include "utils/hwDataAccess.h"
+#include "adc_power.h"
+#include "hwDataAccess.h"
+#include "ui_DateTimeSetPage.h"
+#include "DataSave.h"
+
+#include "lcd.h"
+#include "lcd_init.h"
+#include "CST816.h"
+
 
 /**
  * @brief  硬件初始化
@@ -127,11 +134,15 @@ void HardwareInitTask(void *argument)
         ui_APPSy_EN = recbuf[1];
       }
 
-      RTC_DateTypeDef nowdate;
-      HAL_RTC_GetDate(&hrtc, &nowdate, RTC_FORMAT_BIN);
+      time_t now;
+      struct tm timeinfo;
+      time(&now);                // 获取当前时间戳
+      localtime_r(&now, &timeinfo); // 将时间戳转换为本地日期结构
+
+      uint8_t current_day = (uint8_t)timeinfo.tm_mday;
 
       SettingGet(recbuf, 0x20, 3);
-      if (recbuf[0] == nowdate.Date)
+      if (recbuf[0] == current_day)
       {
         uint16_t steps = 0;
         steps = recbuf[1] & 0x00ff;
@@ -140,6 +151,28 @@ void HardwareInitTask(void *argument)
           dmp_set_pedometer_step_count((unsigned long)steps);
       }
     }
+    
+    // touch
+    CST816_GPIO_Init();
+    CST816_RESET();
+
+    // lcd
+    LCD_Init();
+    LCD_Fill(0, 0, LCD_W, LCD_H, BLACK);
+    vTaskDelay(pdMS_TO_TICKS(10));
+    LCD_Set_Light(50);
+    LCD_ShowString(72, LCD_H / 2, (uint8_t *)"Welcome!", WHITE, BLACK, 24, 0); // 12*6,16*8,24*12,32*16
+    uint8_t lcd_buf_str[17];
+    LCD_ShowString(34, LCD_H / 2 + 48, (uint8_t *)lcd_buf_str, WHITE, BLACK, 24, 0);
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    LCD_Fill(0, LCD_H / 2 - 24, LCD_W, LCD_H / 2 + 49, BLACK);
+
+    // ui
+    // LVGL init
+    lv_init();
+    lv_port_disp_init();
+    lv_port_indev_init();
+    ui_init();
 
     // xTaskResumeAll();  // 恢复调度器
     vTaskDelete(NULL); // 杀死任务

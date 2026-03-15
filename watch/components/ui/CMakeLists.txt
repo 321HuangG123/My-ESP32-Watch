@@ -1,0 +1,21 @@
+idf_component_register(
+    SRCS            "ui.c" 
+                    "ui_helpers.c"
+                    "Fonts/ui_font_Cuyuan18.c" "Fonts/ui_font_Cuyuan20.c" "Fonts/ui_font_Cuyuan24.c" 
+                    "Fonts/ui_font_Cuyuan30.c" "Fonts/ui_font_Cuyuan38.c" "Fonts/ui_font_Cuyuan48.c" 
+                    "Fonts/ui_font_Cuyuan80.c" "Fonts/ui_font_Cuyuan100.c"
+                    "Fonts/ui_font_iconfont16.c" "Fonts/ui_font_iconfont24.c" "Fonts/ui_font_iconfont28.c" 
+                    "Fonts/ui_font_iconfont30.c" "Fonts/ui_font_iconfont32.c" "Fonts/ui_font_iconfont34.c" 
+                    "Fonts/ui_font_iconfont45.c"
+                    "IMGs/ui_img_compass_needle_png.c"
+                    "Screens/ui_AboutPage.c"      "Screens/ui_CalendarPage.c"     "Screens/ui_ChargPage.c" 
+                    "Screens/ui_CompassPage.c"    "Screens/ui_ComputerPage.c"     "Screens/ui_DateTimeSetPage.c"
+                    "Screens/ui_EnvPage.c"        "Screens/ui_Game2048Page.c"     "Screens/ui_GameMemPage.c"
+                    "Screens/ui_GameSelectPage.c" "Screens/ui_HomePage.c"         "Screens/ui_HRPage.c"
+                    "Screens/ui_Megboxes.c"       "Screens/ui_MenuPage.c"         "Screens/ui_NFCCardPage.c"
+                    "Screens/ui_OffTimePage.c"    "Screens/ui_SetPage.c"          "Screens/ui_SPO2Page.c"
+                    "Screens/ui_TimerPage.c"
+
+    INCLUDE_DIRS    "."
+    REQUIRES    "driver"  "lvgl"  "bsp" "utils" "tasks"
+)
