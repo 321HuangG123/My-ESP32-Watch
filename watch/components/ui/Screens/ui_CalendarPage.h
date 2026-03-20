@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "lvgl/src/core/lv_obj.h"
+#include "src/core/lv_obj.h"
 #include "PageManager.h"
 
 extern lv_obj_t * ui_CalendarPage;

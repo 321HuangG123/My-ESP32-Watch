@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 extern lv_obj_t * ui_HRPage;
 extern lv_obj_t * ui_HRPageNumLabel;

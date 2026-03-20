@@ -41,29 +41,29 @@ extern "C" {
 #endif
 
 #if HW_USE_LCD
-  #include "lcd_init.h"
+  #include "screen/lcd_init.h"
 #endif
 
 #if HW_USE_IMU
-  #include "mpu6050.h"
-  #include "inv_mpu.h"
-  #include "inv_mpu_dmp_motion_driver.h"
+  #include "mpu6050/mpu6050.h"
+  #include "mpu6050/inv_mpu.h"
+  #include "mpu6050/inv_mpu_dmp_motion_driver.h"
 #endif
 
 #if HW_USE_DHT11
-  #include "dht11.h"
+  #include "dht11/dht11.h"
 #endif
 
 #if HW_USE_SPL06
-  #include "spl06_001.h"
+  #include "spl06_001/spl06_001.h"
 #endif
 
 #if HW_USE_LSM303
-  #include "lsm303.h"
+  #include "lsm303/lsm303.h"
 #endif
 
 #if HW_USE_MAX30102
-  #include "max30102_read.h"
+  #include "max30102/max30102_read.h"
 #endif
 
 

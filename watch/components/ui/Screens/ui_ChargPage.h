@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 extern lv_obj_t * ui_ChargPage;
 extern lv_obj_t * ui_CharPageBatArc;

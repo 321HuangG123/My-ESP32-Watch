@@ -3,6 +3,7 @@
 #include "freertos/task.h"
 #include "driver/i2c.h"
 #include "driver/gpio.h"
+#include <string.h>
 
 // 重新定义总线结构体，仅保留端口号和超时定义
 typedef struct {

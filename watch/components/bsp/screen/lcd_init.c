@@ -5,6 +5,8 @@
 #include "freertos/task.h"
 #include "driver/ledc.h"
 
+#include <string.h>
+
 
 // È«¾Ö SPI ¾ä±ú
 static spi_device_handle_t spi_handle;

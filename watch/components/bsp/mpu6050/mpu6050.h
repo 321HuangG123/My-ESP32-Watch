@@ -1,7 +1,6 @@
 #ifndef __MPU6050_H
 #define __MPU6050_H
 
-#include "sys.h"
 #include "math.h"
 
 #define I2C_MASTER_NUM              I2C_NUM_0    // I2C ¶Ë¿ÚºÅ

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 extern lv_obj_t * ui_LOffTimeSetPage;
 extern lv_obj_t * ui_LTimeSetRoller;

@@ -1,5 +1,6 @@
 #include "lsm303.h"
 #include <math.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/i2c.h"

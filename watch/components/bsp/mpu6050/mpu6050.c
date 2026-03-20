@@ -3,7 +3,7 @@
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
+#include <string.h>
 
 /**************************************************************************/
 /*!
@@ -103,7 +103,7 @@ uint8_t MPU_Init(void)
 	MPU_Bus_Init();
 
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X80); // 复位MPU6050
-	delay_ms(100);
+	vTaskDelay(pdMS_TO_TICKS(100));
 	MPU_Write_Byte(MPU_PWR_MGMT1_REG, 0X00); // 唤醒MPU6050
 	MPU_Set_Gyro_Fsr(3);					 // G传感器, 2000dps
 	MPU_Set_Accel_Fsr(2);					 // A传感器, 8g
