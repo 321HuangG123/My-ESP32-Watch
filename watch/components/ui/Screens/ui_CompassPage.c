@@ -28,7 +28,7 @@ lv_timer_t * ui_EcompassPageTimer;
 // need to be destroyed when the page is destroyed
 static void EcompassPage_timer_cb(lv_timer_t * timer)
 {
-    uint8_t value_strbuf[6];
+    char value_strbuf[12];
     //set text
     lv_img_set_angle(ui_Compassneedle, HWInterface.Ecompass.direction * 10);
     sprintf(value_strbuf,":%d", HWInterface.Ecompass.direction);
@@ -42,7 +42,7 @@ static void EcompassPage_timer_cb(lv_timer_t * timer)
 ///////////////////// SCREEN init ////////////////////
 void ui_CompassPage_screen_init(void)
 {
-    uint8_t value_strbuf[10];
+    char value_strbuf[10];
 
 		ui_CompassPage = lv_obj_create(NULL);
 

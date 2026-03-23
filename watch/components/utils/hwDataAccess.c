@@ -1,5 +1,6 @@
 #include "hwDataAccess.h"
 #include "time.h"
+#include <sys/time.h>
 #include "adc_power.h"
 #include "spl06_001/spl06_001.h"
 #include "dht11/dht11.h"
@@ -141,15 +142,18 @@ void HW_RTC_Set_Time(uint8_t hours, uint8_t minutes, uint8_t seconds)
     // }
 */
 /**************************************************************************/
-uint8_t HW_weekday_calculate(void)
+uint8_t HW_weekday_calculate(uint8_t setyear, uint8_t setmonth, uint8_t setday, uint8_t century)
 {
-    time_t now;
-	struct tm timeinfo;
-    // 拿到当前时间戳，并转换为结构体
-    time(&now);
-    localtime_r(&now, &timeinfo);
-    // ESP内部会帮我们计算，不需要泽勒公式
-    return timeinfo.tm_wday == 0 ? 7 : timeinfo.tm_wday;
+    int w;
+    // 公式规定，如果是1月或者2月，要把月份当作13月或者14月，年份减1
+    if (setmonth == 1 || setmonth == 2)
+    {setyear--, setmonth += 12;}
+    w = setyear + setyear / 4 + century / 4  + 26*(setmonth + 1)/10 + setday - 1 - 2 * century;
+    while(w<0)
+    	w+=7;
+    w%=7;
+    w=(w==0)?7:w;
+    return w;
 }
 
 /***************************
@@ -356,7 +360,7 @@ void HW_DHT11_Get_Humi_Temp(float *humi, float *temp)
 	#if HW_USE_DHT11
 		//temp and humi messure
 		if(!HWInterface.DHT11.ConnectionError)
-			DHT_Read(humi,temp);
+			DHT_Read((int *)humi, (int *)temp);
 	#endif
 }
 
@@ -459,7 +463,7 @@ uint8_t HW_HRmeter_Init(void)
 void HW_HRmeter_Sleep(void)
 {
 	#if HW_USE_MAX30102
-		MAX30102_hrs_DisEnable();
+        // 空操作
 	#endif
 }
 

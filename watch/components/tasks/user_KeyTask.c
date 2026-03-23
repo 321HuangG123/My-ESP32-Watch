@@ -1,9 +1,8 @@
 /* Private includes -----------------------------------------------------------*/
 //includes
 #include "user_taskInit.h"
-#include "ui_HomePage.h"
-#include "main.h"
-#include "key.h"
+#include "Screens/ui_HomePage.h"
+#include "key/key.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 

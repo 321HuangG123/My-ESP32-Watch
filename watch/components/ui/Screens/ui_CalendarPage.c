@@ -25,7 +25,7 @@ void ui_CalendarPage_screen_init(void)
     ui_CalendarPageCalendar = lv_calendar_create(ui_CalendarPage);
     lv_calendar_set_today_date(ui_CalendarPageCalendar, 2000+DateTime.Year, DateTime.Month, DateTime.Date);
     lv_calendar_set_showed_date(ui_CalendarPageCalendar, 2000+DateTime.Year, DateTime.Month);
-    lv_obj_t * ui_CalendarPageCalendar_header = lv_calendar_header_arrow_create(ui_CalendarPageCalendar);
+    // lv_obj_t * ui_CalendarPageCalendar_header = lv_calendar_header_arrow_create(ui_CalendarPageCalendar);
     lv_obj_set_width(ui_CalendarPageCalendar, 240);
     lv_obj_set_height(ui_CalendarPageCalendar, 280);
     lv_obj_set_align(ui_CalendarPageCalendar, LV_ALIGN_CENTER);

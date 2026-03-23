@@ -65,7 +65,7 @@ void ui_mbox_create(uint8_t * text)
     lv_obj_set_x(ui_WarningLabel, 0);
     lv_obj_set_y(ui_WarningLabel, 25);
     lv_obj_set_align(ui_WarningLabel, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_WarningLabel, text);
+    lv_label_set_text(ui_WarningLabel, (const char *)text);
     lv_obj_set_style_text_color(ui_WarningLabel, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_WarningLabel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_WarningLabel, &ui_font_Cuyuan18, LV_PART_MAIN | LV_STATE_DEFAULT);

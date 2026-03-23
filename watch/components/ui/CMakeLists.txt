@@ -15,6 +15,7 @@ idf_component_register(
                     "Screens/ui_Megboxes.c"       "Screens/ui_MenuPage.c"         "Screens/ui_NFCCardPage.c"
                     "Screens/ui_OffTimePage.c"    "Screens/ui_SetPage.c"          "Screens/ui_SPO2Page.c"
                     "Screens/ui_TimerPage.c"
+                    "StrCalculate.c"
 
     INCLUDE_DIRS    "."
     REQUIRES    "driver"  "lvgl"  "bsp" "utils" "tasks"

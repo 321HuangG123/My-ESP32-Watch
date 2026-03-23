@@ -1,4 +1,6 @@
 #include "adc_power.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 
 /**
@@ -27,7 +29,7 @@ void Power_ADC_Init(adc_channel_t channel) {
     adc_oneshot_unit_init_cfg_t init_config1 = {
         .unit_id = ADC_UNIT_1,
     };
-    adc_oneshot_unit_new_unit(&init_config1, &adc1_handle);
+    adc_oneshot_new_unit(&init_config1, &adc1_handle);
 
     // 2. 配置通道
     adc_oneshot_chan_cfg_t config = {
@@ -37,12 +39,12 @@ void Power_ADC_Init(adc_channel_t channel) {
     adc_oneshot_config_channel(adc1_handle, channel, &config);
 
     // 3. 关键：校准初始化 (ESP32 必须要做这一步)
-    adc_cali_line_fitting_config_t cali_config = {
+    adc_cali_curve_fitting_config_t cali_config = {
         .unit_id = ADC_UNIT_1,
         .atten = ADC_ATTEN,
         .bitwidth = ADC_BITWIDTH_DEFAULT,
     };
-    adc_cali_create_scheme_line_fitting(&cali_config, &adc1_cali_handle);
+    adc_cali_create_scheme_curve_fitting(&cali_config, &adc1_cali_handle);
 }
 
 static float BatCheck_8times(void) {
@@ -79,7 +81,7 @@ static float BatCheck_8times(void) {
  */
 uint8_t PowerCalculate(void)
 {
-    uint8_t power;
+    uint8_t power = 0;
 	float voltage;
 	voltage = BatCheck_8times();
 

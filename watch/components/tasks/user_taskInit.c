@@ -5,7 +5,6 @@
 #include "user_ScrRenewTask.h"
 #include "user_SensUpdateTask.h"
 #include "user_ChargCheckTask.h"
-#include "user_MessageSendTask.h"
 #include "user_DataSaveTask.h"
 
 #include "freertos/FreeRTOS.h"
@@ -13,7 +12,7 @@
 #include "freertos/timers.h"
 #include "freertos/queue.h"
 #include "esp_log.h"
-#include "lvgl/src/core/lv_disp.h"
+#include "src/core/lv_disp.h"
 #include "esp_task_wdt.h"
 
 
@@ -190,7 +189,14 @@ void LvHandlerTask(void *argument)
 void WDOGFeedTask(void *argument)
 {
   // 初始化Task Watchdog
-  esp_task_wdt_init(5);     // 5秒超时
+  // 1. 定义并初始化配置结构体
+    esp_task_wdt_config_t twdt_config = {
+        .timeout_ms = 5000,             // 超时时间：5000毫秒（即5秒）
+        .idle_core_mask = (1 << 0),      // 监视 Core 0 的空闲任务（如果你是单核或只想看Core0）
+                                         // 如果是双核都要看，可以用 (1 << 0) | (1 << 1)
+        .trigger_panic = true,           // 超时后是否触发系统 Panic（重启并打印堆栈）
+    };
+  esp_task_wdt_init(&twdt_config);     // 5秒超时
   esp_task_wdt_add(NULL);         // 监控当前任务
   while (1)
   {

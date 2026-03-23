@@ -11,7 +11,8 @@
 #include "screen/CST816.h"
 #include "key/key.h"
 #include <time.h>
-#include "GUI/porting/lv_port_disp.h"
+#include "screen/lv_port_disp.h"
+#include "screen/lv_port_indev.h"
 
 /**
  * @brief  Ó²¼þ³õÊ¼»¯

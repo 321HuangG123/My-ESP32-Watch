@@ -80,7 +80,7 @@ Page_t Page_Power = {ui_PowerPage_screen_init, ui_PowerPage_screen_deinit, &ui_P
 // need to be destroyed when the page is destroyed
 static void HomePage_timer_cb(lv_timer_t * timer)
 {
-  uint8_t value_strbuf[10];
+  char value_strbuf[10];
   if(Page_Get_NowPage()->page_obj  == &ui_HomePage)
 	{
 			/*
@@ -140,17 +140,17 @@ static void HomePage_timer_cb(lv_timer_t * timer)
 				lv_label_set_text(ui_StepNumLabel, value_strbuf);
       }
 
-      if( ui_HomePageTempValue != (int8_t)HWInterface.AHT21.temperature )
+      if( ui_HomePageTempValue != (int8_t)HWInterface.DHT11.temperature )
       {
-        ui_HomePageTempValue = (int8_t)HWInterface.AHT21.temperature;
+        ui_HomePageTempValue = (int8_t)HWInterface.DHT11.temperature;
         lv_arc_set_value(ui_TempArc, ui_HomePageTempValue);
         sprintf(value_strbuf,"%d",ui_HomePageTempValue);
 				lv_label_set_text(ui_TempNumLabel, value_strbuf);
       }
 
-      if( ui_HomePageHumiValue != (int8_t)HWInterface.AHT21.humidity )
+      if( ui_HomePageHumiValue != (int8_t)HWInterface.DHT11.humidity )
       {
-        ui_HomePageHumiValue = (int8_t)HWInterface.AHT21.humidity;
+        ui_HomePageHumiValue = (int8_t)HWInterface.DHT11.humidity;
         lv_arc_set_value(ui_HumiArc, ui_HomePageHumiValue);
 				sprintf(value_strbuf,"%d",ui_HomePageHumiValue);
 				lv_label_set_text(ui_HumiNumLabel, value_strbuf);
@@ -269,7 +269,7 @@ void ui_event_LightSlider(lv_event_t * e)
 void ui_HomePage_screen_init(void)
 {
 		ui_MenuScrollY = 0;
-    uint8_t value_strbuf[10];
+    char value_strbuf[10];
 
     ui_HomePage = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_HomePage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

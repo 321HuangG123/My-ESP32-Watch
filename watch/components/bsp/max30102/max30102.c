@@ -247,3 +247,8 @@ bool maxim_max30102_set_low_power(bool enable)
     return maxim_max30102_write_reg(REG_MODE_CONFIG, reg_value);
 }
 
+void MAX30102_hrs_DisEnable(void)
+{
+    // 进入低功耗模式
+    maxim_max30102_set_low_power(true);
+}

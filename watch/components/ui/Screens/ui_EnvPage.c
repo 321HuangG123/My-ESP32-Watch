@@ -24,13 +24,13 @@ lv_timer_t * ui_EnvPageTimer;
 // need to be destroyed when the page is destroyed
 static void EnvPage_timer_cb(lv_timer_t * timer)
 {
-    uint8_t value_strbuf[6];
+    char value_strbuf[6];
     //set text
-    lv_bar_set_value(ui_EnvTempBar, HWInterface.AHT21.temperature, LV_ANIM_OFF);
-    lv_bar_set_value(ui_EnvHumiBar, HWInterface.AHT21.humidity, LV_ANIM_OFF);
-    sprintf(value_strbuf,"%d", HWInterface.AHT21.temperature);
+    lv_bar_set_value(ui_EnvTempBar, HWInterface.DHT11.temperature, LV_ANIM_OFF);
+    lv_bar_set_value(ui_EnvHumiBar, HWInterface.DHT11.humidity, LV_ANIM_OFF);
+    sprintf(value_strbuf,"%d", HWInterface.DHT11.temperature);
     lv_label_set_text(ui_EnvTempNumLabel, value_strbuf);
-    sprintf(value_strbuf,"%d", HWInterface.AHT21.humidity);
+    sprintf(value_strbuf,"%d", HWInterface.DHT11.humidity);
     lv_label_set_text(ui_EnvHumiNumLabel, value_strbuf);
 }
 
@@ -38,13 +38,13 @@ static void EnvPage_timer_cb(lv_timer_t * timer)
 ///////////////////// SCREEN init ////////////////////
 void ui_EnvPage_screen_init(void)
 {
-		uint8_t strbuf[5];
+		char strbuf[5];
     ui_EnvPage = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_EnvPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_EnvTempBar = lv_bar_create(ui_EnvPage);
     lv_bar_set_range(ui_EnvTempBar, -10, 50);
-    lv_bar_set_value(ui_EnvTempBar, HWInterface.AHT21.temperature, LV_ANIM_OFF);
+    lv_bar_set_value(ui_EnvTempBar, HWInterface.DHT11.temperature, LV_ANIM_OFF);
     lv_obj_set_width(ui_EnvTempBar, 20);
     lv_obj_set_height(ui_EnvTempBar, 150);
     lv_obj_set_x(ui_EnvTempBar, -50);
@@ -57,7 +57,7 @@ void ui_EnvPage_screen_init(void)
     lv_obj_set_style_bg_opa(ui_EnvTempBar, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
     ui_EnvHumiBar = lv_bar_create(ui_EnvPage);
-    lv_bar_set_value(ui_EnvHumiBar, HWInterface.AHT21.humidity, LV_ANIM_OFF);
+    lv_bar_set_value(ui_EnvHumiBar, HWInterface.DHT11.humidity, LV_ANIM_OFF);
     lv_obj_set_width(ui_EnvHumiBar, 20);
     lv_obj_set_height(ui_EnvHumiBar, 150);
     lv_obj_set_x(ui_EnvHumiBar, 50);
@@ -70,7 +70,7 @@ void ui_EnvPage_screen_init(void)
     lv_obj_set_x(ui_EnvTempNumLabel, -50);
     lv_obj_set_y(ui_EnvTempNumLabel, 100);
     lv_obj_set_align(ui_EnvTempNumLabel, LV_ALIGN_CENTER);
-		sprintf(strbuf,"%d",HWInterface.AHT21.temperature);
+		sprintf(strbuf,"%d",HWInterface.DHT11.temperature);
     lv_label_set_text(ui_EnvTempNumLabel, strbuf);
     lv_obj_set_style_text_font(ui_EnvTempNumLabel, &ui_font_Cuyuan30, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -80,7 +80,7 @@ void ui_EnvPage_screen_init(void)
     lv_obj_set_x(ui_EnvHumiNumLabel, 50);
     lv_obj_set_y(ui_EnvHumiNumLabel, 100);
     lv_obj_set_align(ui_EnvHumiNumLabel, LV_ALIGN_CENTER);
-		sprintf(strbuf,"%d", HWInterface.AHT21.humidity);
+		sprintf(strbuf,"%d", HWInterface.DHT11.humidity);
     lv_label_set_text(ui_EnvHumiNumLabel, strbuf);
     lv_obj_set_style_text_font(ui_EnvHumiNumLabel, &ui_font_Cuyuan30, LV_PART_MAIN | LV_STATE_DEFAULT);
 

@@ -42,15 +42,14 @@ static void ui_TimerPage_Data_init(void)
 /////////////////////// Timer //////////////////////
 static void LabelRefresh_timer(lv_timer_t * timer)
 {
-    uint8_t strbuf[2];
+    char strbuf[4];
 
-    sprintf(strbuf,"%02d",ui_TimerPage_min);
+    snprintf(strbuf, sizeof(strbuf), "%02d", ui_TimerPage_min);
     lv_label_set_text(ui_TimerMinLabel, strbuf);
-    sprintf(strbuf,"%02d",ui_TimerPage_sec);
+    snprintf(strbuf, sizeof(strbuf), "%02d", ui_TimerPage_sec);
     lv_label_set_text(ui_TimerSecLabel, strbuf);
-    sprintf(strbuf,"%02d",ui_TimerPage_10ms);
+    snprintf(strbuf, sizeof(strbuf), "%02d", ui_TimerPage_10ms);
     lv_label_set_text(ui_TimerMilSecLabel, strbuf);
-
 
 }
 

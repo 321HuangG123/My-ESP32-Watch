@@ -43,7 +43,7 @@ void ui_event_WriteBtn1(lv_event_t * e)
 	lv_obj_t * target = lv_event_get_target(e);
 	if(event_code == LV_EVENT_CLICKED)
 	{
-		ui_mbox_create("¿ª·¢ÖÐ");
+		ui_mbox_create((uint8_t *)"making...");
 	}
 }
 

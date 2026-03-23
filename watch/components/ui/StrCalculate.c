@@ -1,7 +1,8 @@
+#include "StrCalculate.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "StrCalculate.h"
+
 
 uint8_t strput(StrStack_t * st,char strin)
 {
@@ -17,7 +18,7 @@ uint8_t strdel(StrStack_t * st)
     if(st->Top_Point == 0)
     {return -1;}
 
-    st->strque[--st->Top_Point] = NULL;
+    st->strque[--st->Top_Point] = 0;
     return 0;
 }
 
@@ -105,7 +106,7 @@ void SymStackClear(SymStack_t* st)
 
 uint8_t SymisHighPriority(char top, char present)
 {
-    //ä¹˜é™¤çš„ä¼˜å…ˆçº§æœ€å¤?
+    //³Ë³ýµÄÓÅÏÈ¼¶×î´ó
     if(top == '*' || top == '/')
     {
         return 1;
@@ -124,14 +125,16 @@ uint8_t SymisHighPriority(char top, char present)
         else
         {return 0;}
     }
+    return 0;
+
 }
 
 void CalculateOne(NumStack_t * numstack, SymStack_t * symstack)
 {
     caldata_t temp;
     temp.datatype = NUMBER_TYPE;
-    temp.symbol = NULL;
-    //è®¡ç®—æ•°å­—æ ˆä¸­çš„é¡¶éƒ¨ä¸¤æ•?,ç»“æžœå­˜åˆ°tempä¸?
+    temp.symbol = 0;
+    //¼ÆËãÊý×ÖÕ»ÖÐµÄ¶¥²¿Á½Êý,½á¹û´æµ½tempÖÐ
     if(symstack->data[symstack->Top_Point-1] == '+')
         temp.number = (numstack->data[numstack->Top_Point-2]) + (numstack->data[numstack->Top_Point-1]);
 
@@ -144,7 +147,7 @@ void CalculateOne(NumStack_t * numstack, SymStack_t * symstack)
     else if(symstack->data[symstack->Top_Point-1] == '/')
         temp.number = (numstack->data[numstack->Top_Point-2]) / (numstack->data[numstack->Top_Point-1]);
 
-    //è¿ç®—å‰ä¸¤æ•°å‡ºæ ?,è¿ç®—ç»“æžœæ•°å…¥æ ?
+    //ÔËËãÇ°Á½Êý³öÕ»,ÔËËã½á¹ûÊýÈëÕ»
     NumStackDel(numstack);
     NumStackDel(numstack);
     NumStackPut(numstack,temp.number);
@@ -154,13 +157,13 @@ void CalculateOne(NumStack_t * numstack, SymStack_t * symstack)
 
 uint8_t NumSymSeparate(char * str, uint8_t strlen, NumStack_t * NumStack, SymStack_t * SymStack)
 {
-		NumStackClear(NumStack);
-		SymStackClear(SymStack);
+	NumStackClear(NumStack);
+	SymStackClear(SymStack);
     caldata_t temp,temp_pre;
-    char NumBehindPoint_Flag = 0;//æ•°å­—æ˜?å¦åœ¨å°æ•°ç‚¹åŽ,åŽå?šå°‘ä½?
+    char NumBehindPoint_Flag = 0;//Êý×ÖÊÇ·ñÔÚÐ¡Êýµãºó,ºó¶àÉÙÎ»
     temp.datatype = NUMBER_TYPE;
     temp.number = 0;
-    temp.symbol = NULL;
+    temp.symbol = 0;
     temp_pre = temp;
     temp_pre.datatype = SYMBOL_TYPE;
     if(str[0]>'9' || str[0]<'0')
@@ -179,14 +182,14 @@ uint8_t NumSymSeparate(char * str, uint8_t strlen, NumStack_t * NumStack, SymSta
         }
         if(str[i]<='9' && str[i]>='0')
         {
-            //æº¢å‡ºæŠ¥é”™
+            //Òç³ö±¨´í
             if(NumStack->Top_Point>CAL_DEPTH || SymStack->Top_Point>CAL_DEPTH)
             {return 3;}
-            //è¯»å–å½“å‰çš„å­—ç¬¦åˆ°tempä¸?
+            //¶ÁÈ¡µ±Ç°µÄ×Ö·ûµ½tempÖÐ
             temp.datatype = NUMBER_TYPE;
             temp.number = (str[i] - '0');
-            temp.symbol = NULL;
-            //å¦‚æžœä¸ºè¿žç»?æ•°å­—,éœ€è¦è¿›è¡Œè¿›ä½?,å°†æ•°å­—æ ˆé¡¶è?»å‡ºè¿›ä½ï¼Œå†åŠ ä¸ŠçŽ°åœ¨ä½ï¼Œå†å…¥æ ?
+            temp.symbol = 0;
+            //Èç¹ûÎªÁ¬ÐøÊý×Ö,ÐèÒª½øÐÐ½øÎ»,½«Êý×ÖÕ»¶¥¶Á³ö½øÎ»£¬ÔÙ¼ÓÉÏÏÖÔÚÎ»£¬ÔÙÈëÕ»
             if(temp_pre.datatype == NUMBER_TYPE)
             {
                 if(!NumBehindPoint_Flag)
@@ -202,7 +205,7 @@ uint8_t NumSymSeparate(char * str, uint8_t strlen, NumStack_t * NumStack, SymSta
                 NumStackDel(NumStack);
                 NumStackPut(NumStack,temp.number);
             }
-            //å½“å‰æ•°å­—åˆšå¥½æ˜?å°æ•°ç‚¹åŽä¸€ä½?
+            //µ±Ç°Êý×Ö¸ÕºÃÊÇÐ¡ÊýµãºóÒ»Î»
             else if(temp_pre.datatype == POINT_TYPE)
             {
                 NumBehindPoint_Flag = 1;
@@ -211,7 +214,7 @@ uint8_t NumSymSeparate(char * str, uint8_t strlen, NumStack_t * NumStack, SymSta
                 NumStackDel(NumStack);
                 NumStackPut(NumStack,temp.number);
             }
-            //å‰ä¸€ä½ä¸æ˜?æ•°å­—æˆ–å°æ•°ç‚¹,çŽ°åœ¨è¯»å–çš„è¿™ä¸€ä½æ˜¯æ•°å­—ï¼Œç›´æŽ¥å…¥æ ?
+            //Ç°Ò»Î»²»ÊÇÊý×Ö»òÐ¡Êýµã,ÏÖÔÚ¶ÁÈ¡µÄÕâÒ»Î»ÊÇÊý×Ö£¬Ö±½ÓÈëÕ»
             else
             {
                 NumStackPut(NumStack,temp.number);
@@ -220,15 +223,15 @@ uint8_t NumSymSeparate(char * str, uint8_t strlen, NumStack_t * NumStack, SymSta
         }
         else if(str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
         {
-            //æº¢å‡ºæŠ¥é”™
+            //Òç³ö±¨´í
             if(NumStack->Top_Point>CAL_DEPTH || SymStack->Top_Point>CAL_DEPTH)
             {return 4;}
-            //è¯»å–å½“å‰çš„å­—ç¬¦åˆ°tempä¸?
+            //¶ÁÈ¡µ±Ç°µÄ×Ö·ûµ½tempÖÐ
             temp.datatype = SYMBOL_TYPE;
             temp.symbol = str[i];
             temp.number = 0;
-            NumBehindPoint_Flag = 0;//å°æ•°ç‚¹è?¡ç®—å·²ç»ç»“æŸ
-            //é‡å?è¾“å…¥äº†è¿ç®—ç¬¦å·
+            NumBehindPoint_Flag = 0;//Ð¡Êýµã¼ÆËãÒÑ¾­½áÊø
+            //ÖØ¸´ÊäÈëÁËÔËËã·ûºÅ
             if(temp_pre.datatype == SYMBOL_TYPE)
             {
                 return 5 ;//erro
@@ -242,7 +245,7 @@ uint8_t NumSymSeparate(char * str, uint8_t strlen, NumStack_t * NumStack, SymSta
                 }
                 else
                 {
-                    //ç¬¦å·åŽ‹å…¥ç¬¦å·æ ?
+                    //·ûºÅÑ¹Èë·ûºÅÕ»
                     SymStackPut(SymStack,temp.symbol);
                 }
                 temp_pre = temp;
@@ -254,7 +257,7 @@ uint8_t NumSymSeparate(char * str, uint8_t strlen, NumStack_t * NumStack, SymSta
 
 uint8_t StrCalculate(char * str,NumStack_t * NumStack, SymStack_t * SymStack)
 {
-    if(NumSymSeparate(str,strlen(str),NumStack,SymStack))
+    if(NumSymSeparate(str, strlen(str), NumStack, SymStack))
     {
         //erro, clear all
         NumStackClear(NumStack);

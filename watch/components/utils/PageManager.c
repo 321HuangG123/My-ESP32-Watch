@@ -1,6 +1,6 @@
 #include "PageManager.h"
-#include "ui_HomePage.h"
-#include "ui_MenuPage.h"
+#include "Screens/ui_HomePage.h"
+#include "Screens/ui_MenuPage.h"
 
 PageStack_t PageStack;
 

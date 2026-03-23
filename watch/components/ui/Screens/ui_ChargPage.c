@@ -26,7 +26,7 @@ static void ChargPage_timer_cb(lv_timer_t * timer)
 {
     if(Page_Get_NowPage()->page_obj == &ui_ChargPage)
 		{
-			uint8_t value_strbuf[5];
+			char value_strbuf[5];
 
 			HW_DateTimeTypeDef DateTime;
       HWInterface.RealTimeClock.GetTimeDate(&DateTime);
@@ -62,7 +62,7 @@ static void ChargPage_timer_cb(lv_timer_t * timer)
 ///////////////////// SCREEN init ////////////////////
 void ui_ChargPage_screen_init(void)
 {
-		uint8_t value_strbuf[5];
+		char value_strbuf[5];
     ui_ChargPage = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_ChargPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 

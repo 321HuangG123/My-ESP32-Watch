@@ -22,7 +22,7 @@ lv_timer_t * ui_HRPageTimer;
 // need to be destroyed when the page is destroyed
 static void HRPage_timer_cb(lv_timer_t * timer)
 {
-    uint8_t value_strbuf[6];
+    char value_strbuf[6];
     //set text
     sprintf(value_strbuf, "%d", HWInterface.HR_meter.HrRate);
     lv_label_set_text(ui_HRPageNumLabel, value_strbuf);
@@ -33,7 +33,7 @@ static void HRPage_timer_cb(lv_timer_t * timer)
 ///////////////////// SCREEN init ////////////////////
 void ui_HRPage_screen_init(void)
 {
-    uint8_t value_strbuf[5];
+    char value_strbuf[5];
 
     ui_HRPage = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_HRPage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

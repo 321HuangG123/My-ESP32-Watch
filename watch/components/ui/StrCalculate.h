@@ -1,3 +1,10 @@
+#ifndef STRCALCULATE_H
+#define STRCALCULATE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define NUMBER_TYPE 0
@@ -44,3 +51,8 @@ uint8_t NumSymSeparate(char * str, uint8_t strlen, NumStack_t * NumStack, SymSta
 uint8_t StrCalculate(char * str, NumStack_t * NumStack, SymStack_t * SymStack);
 uint8_t isIntNumber(float number);
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif

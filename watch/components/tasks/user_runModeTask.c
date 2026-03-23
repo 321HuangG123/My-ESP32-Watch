@@ -56,6 +56,12 @@ void IdleEnterTask(void *argument)
 	}
 }
 
+bool ChargeCheck(void)
+{
+	// 由于没有电源模块，我们这里就直接让它返回0就行了
+	return 0;
+}
+
 /**
  * @brief  进入停机模式与恢复
  * @param  argument: Not used
@@ -153,7 +159,6 @@ void StopEnterTask(void *argument)
 
 			/**************************************************************************************/
 		}
-		osDelay(100);
 		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }

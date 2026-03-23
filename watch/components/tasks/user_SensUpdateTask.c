@@ -3,21 +3,20 @@
 #include "user_taskInit.h"
 #include "user_ScrRenewTask.h"
 #include "user_SensUpdateTask.h"
-#include "ui_HomePage.h"
-#include "ui_MenuPage.h"
-#include "ui_SetPage.h"
-#include "ui_HRPage.h"
-#include "ui_SPO2Page.h"
-#include "ui_ENVPage.h"
-#include "ui_CompassPage.h"
-#include "main.h"
+#include "Screens/ui_HomePage.h"
+#include "Screens/ui_MenuPage.h"
+#include "Screens/ui_SetPage.h"
+#include "Screens/ui_HRPage.h"
+#include "Screens/ui_SPO2Page.h"
+#include "Screens/ui_ENVPage.h"
+#include "Screens/ui_CompassPage.h"
 
-#include "dht11.h"
-#include "LSM303.h"
-#include "SPL06_001.h"
-#include "max30102.h"
-#include "max30102_read.h"
-#include "mpu6050.h"
+#include "dht11/dht11.h"
+#include "lsm303/LSM303.h"
+#include "spl06_001/SPL06_001.h"
+#include "max30102/max30102.h"
+#include "max30102/max30102_read.h"
+#include "mpu6050/mpu6050.h"
 
 #include "hwDataAccess.h"
 
@@ -67,7 +66,7 @@ void MPUCheckTask(void *argument)
 						Page_Get_NowPage()->page_obj == &ui_SetPage)		// 非测量页面
 					{
 						uint8_t Stopstr;
-						xQueueSendToBack(Stop_MessageQueue, &Stopstr, 0, 1); // 进入低功耗模式
+						xQueueSendToBack(Stop_MessageQueue, &Stopstr, 1); // 进入低功耗模式
 					}
 					// 若是特定检测页面则继续运行
 				}
@@ -87,13 +86,13 @@ void MPUCheckTask(void *argument)
 void HRDataUpdateTask(void *argument)
 {
 	uint8_t IdleBreakstr = 0;
-	uint16_t dat = 0;
+	// uint16_t dat = 0;
 	uint8_t hr_temp = 0;
 	while (1)
 	{
 		if (Page_Get_NowPage()->page_obj == &ui_HRPage)		// 当前处于心率检测页面
 		{
-			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 0, 1);		// 解除空闲状态，正常工作模式
+			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 1);		// 解除空闲状态，正常工作模式
 			
 			// sensor wake up
 			maxim_max30102_reset();	// 唤醒传感器
@@ -122,7 +121,7 @@ void HRDataUpdateTask(void *argument)
  */
 void SensorDataUpdateTask(void *argument)
 {
-	uint8_t value_strbuf[6];
+	// uint8_t value_strbuf[6];
 	uint8_t IdleBreakstr = 0;
 	while (1)
 	{
@@ -131,7 +130,7 @@ void SensorDataUpdateTask(void *argument)
 		if (xQueueReceive(HomeUpdata_MessageQueue, &HomeUpdataStr, 0) == pdPASS)// 主页面更新队列有内容
 		{	
 			// bat
-			uint8_t value_strbuf[5];
+			// uint8_t value_strbuf[5];
 
 			HWInterface.Power.power_remain = HWInterface.Power.BatCalculate();		// 剩余电量
 			if (HWInterface.Power.power_remain > 0 && HWInterface.Power.power_remain <= 100)
@@ -149,7 +148,7 @@ void SensorDataUpdateTask(void *argument)
 			}
 
 			// temp and humi
-			if (!(HWInterface.AHT21.ConnectionError))
+			if (!(HWInterface.DHT11.ConnectionError))
 			{
 				// temp and humi messure
 				float humi, temp;
@@ -163,13 +162,13 @@ void SensorDataUpdateTask(void *argument)
 
 			// send data save message queue
 			uint8_t Datastr = 3;
-			xQueueSendToBack(DataSave_MessageQueue, &Datastr, 0, 1);	// 通过消息队列告知需要保存
+			xQueueSendToBack(DataSave_MessageQueue, &Datastr, 1);	// 通过消息队列告知需要保存
 		}
 
 	
 		if (Page_Get_NowPage()->page_obj == &ui_SPO2Page)		// 若位于心率测量页面
 		{
-			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 0, 1);	// 解除空闲状态，心率测量模块解除睡眠模式进入工作模式
+			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 1);	// 解除空闲状态，心率测量模块解除睡眠模式进入工作模式
 			// receive the sensor wakeup message, sensor wakeup
 			if (0)
 			{
@@ -179,7 +178,7 @@ void SensorDataUpdateTask(void *argument)
 		
 		else if (Page_Get_NowPage()->page_obj == &ui_EnvPage)	// 环境监测页面（温湿度）
 		{
-			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 0, 1);		// 解除空闲状态，正常工作模式
+			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 1);		// 解除空闲状态，正常工作模式
 			// receive the sensor wakeup message, sensor wakeup
 			if (!HWInterface.DHT11.ConnectionError)
 			{
@@ -197,7 +196,7 @@ void SensorDataUpdateTask(void *argument)
 		
 		else if (Page_Get_NowPage()->page_obj == &ui_CompassPage)	// 电子罗盘（指南针）
 		{
-			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 0, 1);
+			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 1);
 			
 			LSM303DLH_Wakeup();			// 唤醒电子罗盘传感器
 

@@ -21,8 +21,8 @@ static void SPO2Page_timer_cb(lv_timer_t * timer)
 {
     uint8_t value_strbuf[6];
     //set text
-    sprintf(value_strbuf, "%d", HWInterface.HR_meter.SPO2);
-    lv_label_set_text(ui_SPO2NumLabel, value_strbuf);
+    sprintf((char *)value_strbuf, "%d", HWInterface.HR_meter.SPO2);
+    lv_label_set_text(ui_SPO2NumLabel, (const char *)value_strbuf);
 }
 
 ///////////////////// SCREEN init ////////////////////
@@ -37,8 +37,8 @@ void ui_SPO2Page_screen_init(void)
     lv_obj_set_width(ui_SPO2NumLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_SPO2NumLabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_SPO2NumLabel, LV_ALIGN_CENTER);
-    sprintf(value_strbuf, "%d", HWInterface.HR_meter.SPO2);
-    lv_label_set_text(ui_SPO2NumLabel, value_strbuf);
+    sprintf((char *)value_strbuf, "%d", HWInterface.HR_meter.SPO2);
+    lv_label_set_text(ui_SPO2NumLabel, (const char *)value_strbuf);
     lv_obj_set_style_text_font(ui_SPO2NumLabel, &ui_font_Cuyuan80, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_SPO2UnitLabel = lv_label_create(ui_SPO2Page);

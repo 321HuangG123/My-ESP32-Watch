@@ -27,8 +27,8 @@ static void Stack_Clear(Stack_T* stack);
 typedef struct {
     uint16_t score;
     uint16_t matrix[MATRIX_SIZE][MATRIX_SIZE];
-    char    * btnm_map[MATRIX_SIZE * MATRIX_SIZE + MATRIX_SIZE];
-    uint8_t     game_over;
+    char * btnm_map[MATRIX_SIZE * MATRIX_SIZE + MATRIX_SIZE];
+    uint8_t  game_over;
 } ui_Game2048_t;
 
 #define GAME_2048_TEXT_BLACK_COLOR      lv_color_hex(0X000000)
@@ -75,7 +75,7 @@ lv_obj_t * ui_Game2048ScLabel;
 static void ui_event_Game2048Page(lv_event_t * e)
 {
    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
+    // lv_obj_t * target = lv_event_get_target(e);
 
     if(event_code == LV_EVENT_GESTURE)
     {
@@ -103,8 +103,8 @@ static void ui_event_Game2048Page(lv_event_t * e)
 					{
 							addRandom(Game_2048.matrix);
 							update_btnm_map(Game_2048.btnm_map, Game_2048.matrix);
-							lv_btnmatrix_set_map(ui_Game2048BtnM, Game_2048.btnm_map);
-							uint8_t strbuf[10];
+							lv_btnmatrix_set_map(ui_Game2048BtnM, (const char **)Game_2048.btnm_map);
+							char strbuf[16];
 							sprintf(strbuf,"Score:%d",Game_2048.score);
 							lv_label_set_text(ui_Game2048ScLabel,strbuf);
 					}
@@ -115,14 +115,15 @@ static void ui_event_Game2048Page(lv_event_t * e)
 static void ui_event_Game2048BtnM(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e);
+    // lv_obj_t * obj = lv_event_get_target(e);
 
     if(code == LV_EVENT_DRAW_PART_BEGIN)
     {
         lv_obj_draw_part_dsc_t * dsc = lv_event_get_param(e);
 
         /*Change the draw descriptor the button*/
-        if((dsc->id >= 0) && (dsc->label_dsc))
+        // if((dsc->id >= 0) && (dsc->label_dsc))
+        if(dsc->label_dsc != NULL)
         {
             uint16_t x, y, num;
 
@@ -140,7 +141,7 @@ static void ui_event_Game2048BtnM(lv_event_t * e)
     }
     if(code == LV_EVENT_DRAW_PART_END)
     {
-        lv_obj_draw_part_dsc_t * dsc = lv_event_get_param(e);
+        // lv_obj_draw_part_dsc_t * dsc = lv_event_get_param(e);
     }
 }
 
@@ -150,7 +151,7 @@ static void ui_event_new_game_btn(lv_event_t * e)
     if(code == LV_EVENT_LONG_PRESSED)
     {
 			Game_2048_init();
-      uint8_t strbuf[10];
+      char strbuf[16];
       sprintf(strbuf,"Score:%d",Game_2048.score);
       lv_label_set_text(ui_Game2048ScLabel,strbuf);
     }
@@ -185,7 +186,7 @@ void ui_Game2048Page_screen_init(void)
     lv_obj_set_style_text_font(new_game_btn_label, &ui_font_Cuyuan20, 0);
 
     ui_Game2048ScLabel = lv_label_create(ui_Game2048Page);
-    uint8_t strbuf[10];
+    char strbuf[16];
     sprintf(strbuf,"Score:%d",Game_2048.score);
     lv_label_set_text(ui_Game2048ScLabel,strbuf);
     lv_obj_align(ui_Game2048ScLabel, LV_ALIGN_TOP_RIGHT, -10, 15);
@@ -208,7 +209,8 @@ static void Game_2048_init(void)
     Game_2048.score = 0;
     Game_2048.game_over = 0;
 
-    memset(Game_2048.btnm_map,0,MATRIX_SIZE * MATRIX_SIZE + MATRIX_SIZE);
+    // memset(Game_2048.btnm_map,0,MATRIX_SIZE * MATRIX_SIZE + MATRIX_SIZE);
+    memset(Game_2048.btnm_map,0,sizeof(Game_2048.btnm_map));
 
     Game_2048.btnm_map[4]="\n";
     Game_2048.btnm_map[9]="\n";
@@ -217,7 +219,7 @@ static void Game_2048_init(void)
 
     init_matrix_num(Game_2048.matrix);
     update_btnm_map(Game_2048.btnm_map, Game_2048.matrix);
-    lv_btnmatrix_set_map(ui_Game2048BtnM, Game_2048.btnm_map);
+    lv_btnmatrix_set_map(ui_Game2048BtnM, (const char **)Game_2048.btnm_map);
 
 }
 
@@ -555,7 +557,7 @@ static uint8_t Stack_Pop(Stack_T* stack)
   if(stack->Top_Point == 0)
     {return -1;}
 
-    stack->Data[stack->Top_Point--] = NULL;
+    stack->Data[stack->Top_Point--] = 0;
     return 0;
 }
 
