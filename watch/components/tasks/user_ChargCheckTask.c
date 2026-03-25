@@ -9,6 +9,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_task_wdt.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -37,6 +38,7 @@ void ChargPageEnterTask(void *argument)
 {
 	while (1)
 	{
+		esp_task_wdt_add(NULL);         // 监控当前任务
 		// 硬件中断发生
 		if (HardInt_Charg_flag) // 当正在充电时标志位置1
 		{
@@ -51,6 +53,7 @@ void ChargPageEnterTask(void *argument)
 				Page_Back();	// 页面返回
 			}
 		}
+		esp_task_wdt_reset();
 		vTaskDelay(pdMS_TO_TICKS(500));
 	}
 }

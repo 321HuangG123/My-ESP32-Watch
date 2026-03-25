@@ -36,6 +36,7 @@ uint8_t HardInt_Charg_flag = 0;		// ³äµç±êÖ¾Î»£¬0£ºÎ´³äµç£»1£ºÕıÔÚ³äµç ÓÉÓÚÃ»ÓĞµ
  */
 void IdleEnterTask(void *argument)
 { // ½øÈë¿ÕÏĞ×´Ì¬
+	esp_task_wdt_add(NULL);         // ¼à¿Øµ±Ç°ÈÎÎñ
 	uint8_t Idlestr = 0;
 	uint8_t IdleBreakstr = 0;
 	while (1)
@@ -52,6 +53,8 @@ void IdleEnterTask(void *argument)
 			IdleTimerCount = 0;					// ÆÁÄ»»½ĞÑ×ÜÊ±³¤ÇåÁã
 			LCD_Set_Light(ui_LightSliderValue); // ½«°µÁËµÄÆÁÄ»µ÷Îª ÓÃ»§ÉèÖÃµÄÁÁ¶ÈÖµ
 		}
+
+		esp_task_wdt_reset();
 		vTaskDelay(pdMS_TO_TICKS(10));
 	}
 }
@@ -69,6 +72,7 @@ bool ChargeCheck(void)
  */
 void StopEnterTask(void *argument)
 {
+	esp_task_wdt_add(NULL);         // ¼à¿Øµ±Ç°ÈÎÎñ
 	uint8_t Stopstr;
 	uint8_t HomeUpdataStr;
 	uint8_t Wrist_Flag = 0;
@@ -129,6 +133,7 @@ void StopEnterTask(void *argument)
 					goto sleep;
 				}
 			}
+			esp_task_wdt_reset();
 
 			// KEY1 £º½»»¥¼ü£¬·µ»ØÉÏÒ»Ò³Ãæ£¨ÏÂ½µÑØ´¥·¢£©£»	KEY2 £ºµçÔ´¼ü£¨ÉÏÉıÑØ´¥·¢£©
 			// °´ÏÂKEY1 | °´ÏÂKEY2 | ³äµç | ÊÖÍóÌ§Æğ
@@ -143,6 +148,7 @@ void StopEnterTask(void *argument)
 				goto sleep;
 			}
 
+			esp_task_wdt_reset();
 			
 			// lcd
 			LCD_Init();				// ÁÁÆÁ	
@@ -156,7 +162,8 @@ void StopEnterTask(void *argument)
 			}
 			// send the Home Updata message
 			xQueueSendToBack(HomeUpdata_MessageQueue, &HomeUpdataStr, 1);		// ·¢ËÍÖ÷Ò³Ãæ¸üĞÂÏûÏ¢
-
+			
+			esp_task_wdt_reset();
 			/**************************************************************************************/
 		}
 		vTaskDelay(pdMS_TO_TICKS(100));

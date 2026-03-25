@@ -7,6 +7,7 @@ idf_component_register( SRCS    "dht11/dht11.c"                 # ÎÂÊª¶È
                                 "screen/CST816.c"   "screen/lcd_init.c"   "screen/lcd.c"
                                 "screen/lv_port_disp.c"   "screen/lv_port_indev.c"     # ÆÁÄ»
                                 "at24c02/AT24C02.c" "at24c02/DataSave.c"                # E2PROMÊý¾Ý´æ´¢
+                                "i2c/my_i2c.c"
 
                         INCLUDE_DIRS    "."
 

@@ -13,6 +13,7 @@
 #include <time.h>
 #include "screen/lv_port_disp.h"
 #include "screen/lv_port_indev.h"
+#include "esp_task_wdt.h"
 
 /**
  * @brief  硬件初始化
@@ -23,6 +24,7 @@ void HardwareInitTask(void *argument)
 {
   while (1)
   {
+    esp_task_wdt_add(NULL);
     /*
       STM32源代码里需要这样挂起调度器，但是在这里会报错。 
       vTaskSuspendAll() 会挂起调度器。在调度器挂起期间，所有的任务切换都停止了，这意味着“时间（Tick）”也停止了。
@@ -80,7 +82,8 @@ void HardwareInitTask(void *argument)
       num--;
       HWInterface.DHT11.ConnectionError = HWInterface.DHT11.Init(); // 初始化I2C以及往AHT21模块写入数据启动模块
     }
-    
+    esp_task_wdt_reset();
+
     // 电子指南针模块初始化
     num = 3;
     while (num && HWInterface.Ecompass.ConnectionError)
@@ -88,6 +91,7 @@ void HardwareInitTask(void *argument)
       num--;
       HWInterface.Ecompass.ConnectionError = HWInterface.Ecompass.Init();
     }
+    esp_task_wdt_reset();
     if (!HWInterface.Ecompass.ConnectionError)
       HWInterface.Ecompass.Sleep();       // 进入睡眠模式，省电
     
@@ -98,6 +102,7 @@ void HardwareInitTask(void *argument)
       num--;
       HWInterface.Barometer.ConnectionError = HWInterface.Barometer.Init();
     }
+    esp_task_wdt_reset();
 
     // MPU6050初始化
     num = 3;
@@ -106,6 +111,7 @@ void HardwareInitTask(void *argument)
       num--;
       HWInterface.IMU.ConnectionError = HWInterface.IMU.Init();
     } // 其他模块有进入睡眠模式，但可能考虑到手表在低功耗模式下也得计算步数，作者就没有让该模块睡眠
+    esp_task_wdt_reset();
 
     // 心率模块初始化
     num = 3;
@@ -116,6 +122,7 @@ void HardwareInitTask(void *argument)
     }
     if (!HWInterface.HR_meter.ConnectionError)
       HWInterface.HR_meter.Sleep();   // 心率模块进入睡眠模式 
+    esp_task_wdt_reset();
 
     // EEPROM
     EEPROM_Init();
@@ -134,6 +141,7 @@ void HardwareInitTask(void *argument)
         ui_APPSy_EN = recbuf[1];
       }
 
+
       time_t now;
       struct tm timeinfo;
       time(&now);                // 获取当前时间戳
@@ -151,6 +159,7 @@ void HardwareInitTask(void *argument)
           dmp_set_pedometer_step_count((unsigned long)steps);
       }
     }
+    esp_task_wdt_reset();
     
     // touch
     CST816_GPIO_Init();
@@ -166,6 +175,8 @@ void HardwareInitTask(void *argument)
     LCD_ShowString(34, LCD_H / 2 + 48, (uint8_t *)lcd_buf_str, WHITE, BLACK, 24, 0);
     vTaskDelay(pdMS_TO_TICKS(1000));
     LCD_Fill(0, LCD_H / 2 - 24, LCD_W, LCD_H / 2 + 49, BLACK);
+
+    esp_task_wdt_reset();
 
     // ui
     // LVGL init

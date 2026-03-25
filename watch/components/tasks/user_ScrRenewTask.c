@@ -13,6 +13,8 @@
 #include "lsm303/lsm303.h"
 #include "spl06_001/spl06_001.h"
 
+#include "esp_task_wdt.h"
+
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
@@ -28,7 +30,8 @@ extern QueueHandle_t Key_MessageQueue;
  * @retval None
  */
 void ScrRenewTask(void *argument)
-{
+{	
+	esp_task_wdt_add(NULL);         // 监控当前任务
 	uint8_t keystr = 0;
 	while (1)
 	{		
@@ -46,6 +49,7 @@ void ScrRenewTask(void *argument)
 					SPL_Sleep();				// 气压
 				}
 			}
+
 			// key2 pressed
 			else if (keystr == 2)
 			{
@@ -57,6 +61,7 @@ void ScrRenewTask(void *argument)
 				SPL_Sleep();					
 			}
 		}
+		esp_task_wdt_reset();
 		vTaskDelay(pdMS_TO_TICKS(10));
 	}
 }

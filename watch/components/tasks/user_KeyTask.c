@@ -5,6 +5,7 @@
 #include "key/key.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_task_wdt.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -22,6 +23,7 @@
   */
 void KeyTask(void *argument)
 {
+	esp_task_wdt_add(NULL);         // 监控当前任务
 	uint8_t keystr=0;
 	uint8_t Stopstr=0;
 	uint8_t IdleBreakstr=0;
@@ -48,6 +50,8 @@ void KeyTask(void *argument)
 				}
 				break;
 		}
+		esp_task_wdt_reset();
+
 		vTaskDelay(pdMS_TO_TICKS(1));
 	}
 }

@@ -24,6 +24,8 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
+#include "esp_task_wdt.h"
+
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
@@ -48,6 +50,7 @@ extern int em70xx_reset(int ref);
  */
 void MPUCheckTask(void *argument)
 {
+	esp_task_wdt_add(NULL);
 	while (1)
 	{
 		if (HWInterface.IMU.wrist_is_enabled)	// 开启了抬腕亮屏
@@ -74,6 +77,7 @@ void MPUCheckTask(void *argument)
 				HWInterface.IMU.wrist_state = WRIST_DOWN;
 			}
 		}
+		esp_task_wdt_reset();
 		vTaskDelay(pdMS_TO_TICKS(300));
 	}
 }
@@ -85,6 +89,7 @@ void MPUCheckTask(void *argument)
  */
 void HRDataUpdateTask(void *argument)
 {
+	esp_task_wdt_add(NULL);
 	uint8_t IdleBreakstr = 0;
 	// uint16_t dat = 0;
 	uint8_t hr_temp = 0;
@@ -97,6 +102,7 @@ void HRDataUpdateTask(void *argument)
 			// sensor wake up
 			maxim_max30102_reset();	// 唤醒传感器
 			// receive the sensor wakeup message, sensor wakeup
+			esp_task_wdt_reset();
 			if (!HWInterface.HR_meter.ConnectionError)
 			{
 				// Hr messure
@@ -110,6 +116,7 @@ void HRDataUpdateTask(void *argument)
 				}
 			}
 		}
+		esp_task_wdt_reset();
 		vTaskDelay(pdMS_TO_TICKS(50));
 	}
 }
@@ -121,6 +128,7 @@ void HRDataUpdateTask(void *argument)
  */
 void SensorDataUpdateTask(void *argument)
 {
+	esp_task_wdt_add(NULL);
 	// uint8_t value_strbuf[6];
 	uint8_t IdleBreakstr = 0;
 	while (1)
@@ -165,7 +173,7 @@ void SensorDataUpdateTask(void *argument)
 			xQueueSendToBack(DataSave_MessageQueue, &Datastr, 1);	// 通过消息队列告知需要保存
 		}
 
-	
+		
 		if (Page_Get_NowPage()->page_obj == &ui_SPO2Page)		// 若位于心率测量页面
 		{
 			xQueueSendToBack(IdleBreak_MessageQueue, &IdleBreakstr, 1);	// 解除空闲状态，心率测量模块解除睡眠模式进入工作模式
@@ -232,7 +240,7 @@ void SensorDataUpdateTask(void *argument)
 				}
 			}
 		}
-
+		esp_task_wdt_reset();
 		vTaskDelay(pdMS_TO_TICKS(500));
 	}
 }

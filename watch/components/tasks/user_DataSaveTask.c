@@ -15,6 +15,7 @@
 #include "freertos/queue.h"
 
 #include "time.h"
+#include "esp_task_wdt.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -46,7 +47,7 @@ EEPROM Data description:
  */
 void DataSaveTask(void *argument)
 {
-
+	esp_task_wdt_add(NULL);
 	while (1)
 	{
 		uint8_t Datastr = 0;
@@ -61,7 +62,7 @@ void DataSaveTask(void *argument)
 			dat[0] = HWInterface.IMU.wrist_is_enabled;
 			dat[1] = ui_APPSy_EN;
 			SettingSave(dat, 0x10, 2);
-
+			esp_task_wdt_reset();
 			// 1. 获取系统当前时间
 			time_t now;
 			struct tm timeinfo;
@@ -73,7 +74,7 @@ void DataSaveTask(void *argument)
 			
 			// 2. 从存储中读取旧数据（假设 SettingGet 接口保持不变）
 			SettingGet(dat, 0x20, 3);
-			
+			esp_task_wdt_reset();
 			// 3. 日期比对逻辑
 			if (dat[0] != current_day)
 			{
@@ -93,8 +94,8 @@ void DataSaveTask(void *argument)
 				dat[1] = temp >> 8 & 0xff;
 				SettingSave(dat, 0x20, 3);
 			}
-
 		}
+		esp_task_wdt_reset();
 		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }
